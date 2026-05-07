@@ -1,60 +1,86 @@
-## SALES FORECASTING DOCUMENTATION
+# Case Study Forecasting
 
-This is a draft version of the project focused on one working path first:
+An end-to-end time-series forecasting system that trains and compares multiple state-of-the-art models across 50 US states, automatically selects the best performer, and serves predictions via REST API and interactive web UI.
 
-1. Clean an Excel file and fill missing dates.
-2. Engineer time-series features with no leakage.
-3. Train ARIMA, Prophet, XGBoost, and LSTM per state.
-4. Compare validation performance and select the best model.
-5. Expose predictions through a REST API.
+## Features
 
-## Expected input
+- **Multi-Model Training**: ARIMA/SARIMA, Facebook Prophet, XGBoost, and LSTM neural networks
+- **50-State Coverage**: Individual models trained for each US state
+- **Intelligent Model Selection**: Automatic best-model selection based on validation metrics
+- **REST API**: FastAPI endpoints for predictions and model training
+- **Interactive UI**: Streamlit dashboard for exploratory analysis and forecasting
+- **Feature Engineering**: Lag features, rolling statistics, temporal features, and holiday indicators
+- **Time-Series Validation**: Proper train/validation split preventing data leakage
 
-Place your Excel file at `data/raw.xlsx` or set `DATA_SOURCE_PATH` to the file you want to use.
+## Quick Start
 
-The cleaner looks for common column names:
+### Prerequisites
+- Python 3.12+
+- Excel file with state, date, and sales/target columns
 
-- state: `state`, `state_name`, `region`
-- date: `date`, `datetime`, `day`, `report_date`
-- target: `value`, `target`, `total`, `count`, `cases`, `sales`, `y`
+### Installation
 
-Your sheet schema is supported directly:
+```bash
+pip install -r requirements.txt
+```
 
-- `State` -> state
-- `Date` -> date
-- `Total` -> target
-- `Category` -> optional context field
+### Data Preparation
 
-## Run the cleaner
+Place your Excel file at `data/raw.xlsx`. The system automatically detects common column names:
+- **State**: `state`, `state_name`, `region`
+- **Date**: `date`, `datetime`, `day`, `report_date`
+- **Target**: `value`, `target`, `total`, `sales`, `count`, `cases`
 
+Clean the data:
 ```bash
 python scripts/clean_data.py
 ```
 
-This writes a cleaned Excel file to `data/cleaned.xlsx` by default.
+### Train Models
 
-## Train all models
-
+Train all models across all states:
 ```bash
 python scripts/train_models.py
 ```
 
-This creates per-state artifacts in `artifacts/` with the best model and validation metrics.
-
-If you start the API first, you can also trigger the same process with `POST /train`.
-
-## Run the API
+### Run API
 
 ```bash
-uvicorn app.main:app --reload
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-Example request:
+Example prediction:
+```bash
+curl http://127.0.0.1:8000/predict/texas?horizon=8
+```
+
+### Run Web UI
 
 ```bash
-curl http://127.0.0.1:8000/predict/texas?horizon=56
+streamlit run streamlit_app.py
 ```
 
-## Draft scope
+Access at `http://localhost:8501`
 
-The other model ideas and extra feature engineering can be expanded later, but the current code already includes the mandatory four model families and time-series validation.
+## API Endpoints
+
+- `GET /` - System status
+- `GET /predict/{state}` - Forecast for specific state (default 7 days)
+- `GET /health` - Health check
+- `POST /train` - Trigger model retraining
+
+## Architecture
+
+- **app/pipeline.py**: Data loading, cleaning, and validation split
+- **app/features.py**: Feature engineering (lags, rolling stats, temporal, holidays)
+- **app/training.py**: Multi-model training and selection
+- **app/model.py**: Artifact loading and prediction serving
+- **app/main.py**: FastAPI application
+
+## Performance
+
+All 50 states trained; ARIMA selected as best model for optimal performance on this dataset.
+
+## License
+
+Proprietary - Case Study Project
