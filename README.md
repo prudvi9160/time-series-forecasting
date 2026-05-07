@@ -1,4 +1,4 @@
-# QuickHyreAI Draft
+## SALES FORECASTING DOCUMENTATION
 
 This is a draft version of the project focused on one working path first:
 
