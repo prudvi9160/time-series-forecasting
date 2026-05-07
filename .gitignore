@@ -1,0 +1,13 @@
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+dist/
+build/
+*.pyc
+*.pkl
+*.joblib
+artifacts/
+models/
+data/cleaned.xlsx
+data/raw.xlsx
